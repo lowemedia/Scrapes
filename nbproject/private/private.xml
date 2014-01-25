@@ -3,11 +3,12 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/andylowe/Projects/Scrapes/rasterize.js</file>
+            <file>file:/home/andylowe/Projects/Scrapes/cvg/news.js</file>
             <file>file:/home/andylowe/Projects/Scrapes/TotalFilm/news.js</file>
-            <file>file:/home/andylowe/Projects/Scrapes/TotalFilm/article.js</file>
-            <file>file:/home/andylowe/Projects/Scrapes/testParser.php</file>
-            <file>file:/home/andylowe/Projects/Scrapes/Empire/article.js</file>
+            <file>file:/home/andylowe/Projects/Scrapes/cvg/article.js</file>
+            <file>file:/home/andylowe/Projects/Scrapes/rasterize.js</file>
+            <file>file:/home/andylowe/Projects/Scrapes/README.md</file>
+            <file>file:/home/andylowe/Projects/Scrapes/PHP/parser.php</file>
         </group>
     </open-files>
 </project-private>
