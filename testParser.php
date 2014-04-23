@@ -17,20 +17,20 @@
 $start = microtime(true);
 echo "************************************************************\n";
 echo "Scraping News Page\n";
-$outputNews = shell_exec('bin/phantomjs ComputerAndVideoGames/news.js http://www.computerandvideogames.com/news.php');
+$outputNews = shell_exec('phantomjs ComputerAndVideoGames/news.js http://www.computerandvideogames.com/news.php');
 $news = explode('Parsing & Building JSON', $outputNews);
 $links = json_decode($news[1]);
+print_r($links);
 echo "Done\n\n";
-
-
 echo "Scraping Article Pages\n";
 
 $count = 0;
 foreach ($links->link as $link) {
-    $outputArticle = shell_exec('bin/phantomjs ComputerAndVideoGames/article.js ' . $link);
+    $outputArticle = shell_exec('phantomjs ComputerAndVideoGames/article.js http://www.computerandvideogames.com' . $link);
     $article = explode('Parsing & Building JSON', $outputArticle);
+    print_r($article);
     $count++;
-    sleep(5);
+    sleep(10);
 }
 echo "Done\n\n";
 $end = microtime(true);

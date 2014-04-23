@@ -1,71 +1,120 @@
-
+var convertMonth = function(month) {
+    var number;
+    return number;
+}
 
 var page = require('webpage').create(),
     system = require('system'),
-    address, output, size;
+    address;
 
-//if (system.args.length < 3 || system.args.length > 5) {
-//    console.log('Usage: rasterize.js URL filename [paperwidth*paperheight|paperformat] [zoom]');
-//    console.log('  paper (pdf output) examples: "5in*7.5in", "10cm*20cm", "A4", "Letter"');
-//    phantom.exit(1);
-//} else {
-    address = system.args[1];
-    output = system.args[2];
-    page.viewportSize = { width: 600, height: 600 };
-    if (system.args.length > 3 && system.args[2].substr(-4) === ".pdf") {
-        size = system.args[3].split('*');
-        page.paperSize = size.length === 2 ? { width: size[0], height: size[1], margin: '0px' }
-                                           : { format: system.args[3], orientation: 'portrait', margin: '1cm' };
-    }
-    if (system.args.length > 4) {
-        page.zoomFactor = system.args[4];
-    }
-    page.open(address, function (status) {
-        if (status !== 'success') {
-            console.log('Unable to load the address!');
-            phantom.exit();
-        } else {
-            window.setTimeout(function () {
-                console.log('Parsing & Building JSON');
+address = system.args[1];
+    
+page.open(address, function (status) {
+    if (status !== 'success') {
+        console.log('Unable to load the address!');
+        phantom.exit();
+    } else {
+        window.setTimeout(function () {
+            console.log('Parsing & Building JSON');
+            page.includeJs("http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js", function() {
                 var content = page.evaluate(function () {
                     var result = {title:'', subtitle:'', content:'', image:[], media:[], publishDate:'', author:'', source:''};
-                    var element = document.getElementsByClassName('col mp-all ml-all t-all d-8');
                     
-                    var article = element[0].getElementsByTagName('article');
+                    var header;
                     
-                    for (var n=0; n<article.length; n++) {
-                        var header = article[n].getElementsByClassName('single-article__header');
-                        
-                        var title = header[0].getElementsByTagName('h1');
-                        result.title = title[0].innerHTML;
-                        
-                        var subtitle = header[0].getElementsByTagName('h2');
-                        result.subtitle = subtitle[0].innerHTML;
-                        
-                        var source = article[n].getElementsByClassName('single-article__meta');
-                        var author = source[0].getElementsByTagName('a');
-                        result.author = author[0].innerHTML;
-                        var sourceText = source[0].getElementsByTagName('p')[0].innerHTML;
-                        
-                        var publishDate = sourceText.substring(sourceText.indexOf('on '),sourceText.length);
-                        result.publishDate = publishDate.replace('on ','').substring(0,publishDate.indexOf('\n')).trim();
-                        
-                    }
-                    var content = document.getElementById('article_body_container');
-                    
-                    var paragraph = content.getElementsByTagName('p');
-                    for (var x=0; x<paragraph.length; x++) {
-                        result.content = result.content + paragraph[x].outerHTML;
+                    if ($('div.highlight__overlay.has-indicator.has-indicator--reviews.has-indicator--large hgroup').html()) {
+                        header = $('div.highlight__overlay.has-indicator.has-indicator--reviews.has-indicator--large hgroup');
+                    } else  {
+                        header = $('div.single-article__header').children('hgroup');
                     }
                     
+                    result.title = header.children('h1').html();
+                    result.subtitle = header.children('h2').html();
+
+                    if ($('div.single-article__meta p a').html()) {
+                        result.author = $('div.single-article__meta p a').html();
+                    } else if ($('div.highlight__overlay.has-indicator.has-indicator--reviews.has-indicator--large a.is-lowlight').html()) {
+                        result.author = $('div.highlight__overlay.has-indicator.has-indicator--reviews.has-indicator--large a.is-lowlight').html();
+                    }
                     
+//                    return $('div.highlight__overlay.has-indicator.has-indicator--reviews.has-indicator--large').html();
+                    
+                    result.source = "Computer and Video Games";
+
+                    var meta;
+                    if ($('div.single-article__meta p').html()) {
+                        meta = $('div.single-article__meta p');
+                    } else if ($('div.highlight__overlay.has-indicator.has-indicator--reviews.has-indicator--large').html()) {
+                        meta = $('div.highlight__overlay.has-indicator.has-indicator--reviews.has-indicator--large');
+                    }
+//                        return meta;    
+
+                    var publishDate = meta.html().substring(meta.html().indexOf('on '),meta.html().length);
+                    var date = publishDate.replace('on ','').substring(0,publishDate.indexOf('\n')).trim().replace(' at','').replace('th','').replace('rd','').replace('nd','').replace('st','').split(' ');
+
+                    var month;
+
+                    if ('Jan' === date[2]) {
+                        month = '01';
+                    } else if ('Feb' === date[2]) {
+                        month = '02';
+                    } else if ('Mar' === date[2]) {
+                        month = '03';
+                    } else if ('Apr' === date[2]) {
+                        month = '04';
+                    } else if ('May' === date[2]) {
+                        month = '05';
+                    } else if ('Jun' === date[2]) {
+                        month = '06';
+                    } else if ('Jul' === date[2]) {
+                        month = '07';
+                    } else if ('Aug' === date[2]) {
+                        month = '08';
+                    } else if ('Sep' === date[2]) {
+                        month = '09';
+                    } else if ('Oct' === date[2]) {
+                        month = '10';
+                    } else if ('Nov' === date[2]) {
+                        month = '11';
+                    } else if ('Dec' === date[2]) {
+                        month = '12';
+                    }
+
+                    var timeBreakUp = date[4].split(':');
+                    var hour = parseInt(timeBreakUp[0]);
+                    if (hour < 12 && date[5] === 'PM') {
+                        hour = (hour + 12) ;
+                    }
+
+                    result.publishDate = date[3] + '-' + month + '-' + date[1] + ' ' + hour + ':' + timeBreakUp[1];
+
+
+
+                    var content = $('div#article_body_container div.single-article__body p');
+                    content.each(function() {
+                        result.content = result.content + "<p>" + $(this).html() + "</p>";
+                    });
+
+                    var images = $('div#article_body_container div.single-article__body img');
+                    images.each(function() {
+                        result.image.push($(this).attr('src'));
+                    });
+
+                    var iframe = $('div#article_body_container div.single-article__body iframe');
+                    iframe.each(function() {
+                        if ($(this).attr('src')) {
+                            result.media.push($(this)[0].outerHTML);
+                        }
+                    });
+
                     return result;
-    		});
-                //page.content = JSON.stringify(content);
-		console.log(JSON.stringify(content));
-		//page.render(output);
+                
+                });
+//		console.log(content);
+                console.log(JSON.stringify(content));
                 phantom.exit();
-            }, 100);
-        }
-    });
-//}
+            });
+        }, 1000);
+    }
+});
+
